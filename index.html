@@ -6,138 +6,163 @@
   <title>AK Eye Disease Detection</title>
 
   <style>
-    body{
-      font-family: Arial, sans-serif;
-      background:#0f172a;
-      color:#fff;
-      text-align:center;
-      margin:0;
-      padding:0;
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: #0f172a;
+      color: #fff;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
     }
-    .container{
-      margin-top:110px;
-      padding:20px;
+    .container {
+      padding: 20px;
     }
-    h1{
-      font-size:42px;
-      margin-bottom:30px;
+    h1 {
+      font-size: 36px;
+      margin-bottom: 20px;
+      color: #38bdf8;
     }
-    .card{
-      width:min(520px, 92vw);
-      margin:0 auto;
-      background:#111827;
-      border:1px solid #1f2937;
-      border-radius:14px;
-      padding:24px;
-      box-shadow:0 10px 30px rgba(0,0,0,0.35);
+    .card {
+      width: min(480px, 90vw);
+      background: #1e293b;
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 30px;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
     }
-    input[type=file]{
-      width:100%;
-      padding:10px;
-      border-radius:10px;
-      border:1px solid #334155;
-      background:#0b1220;
-      color:#fff;
-      margin-bottom:16px;
+    input[type=file] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px dashed #64748b;
+      background: #0f172a;
+      color: #cbd5e1;
+      margin-bottom: 20px;
+      cursor: pointer;
     }
-    button{
-      width:100%;
-      padding:14px 18px;
-      background:#22c55e;
-      border:none;
-      border-radius:10px;
-      color:#08110a;
-      font-size:18px;
-      cursor:pointer;
-      font-weight:700;
+    button {
+      width: 100%;
+      padding: 15px;
+      background: #22c55e;
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 18px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: transform 0.2s, background 0.2s;
     }
-    button:hover{ opacity:0.9; }
-    #result{
-      margin-top:18px;
-      font-size:20px;
-      color:#93c5fd;
-      min-height:28px;
+    button:hover {
+      background: #16a34a;
+      transform: translateY(-2px);
     }
-    .small{
-      margin-top:12px;
-      font-size:13px;
-      color:#cbd5e1;
-      opacity:0.9;
-      line-height:1.4;
+    button:active {
+      transform: translateY(0);
     }
-    .status{
-      margin-top:10px;
-      font-size:14px;
-      color:#fbbf24;
+    #result {
+      margin-top: 25px;
+      font-size: 22px;
+      font-weight: bold;
+      color: #f0f9ff;
+      padding: 15px;
+      border-radius: 8px;
+      background: rgba(56, 189, 248, 0.1);
+    }
+    .status {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #fbbf24;
+    }
+    .footer-note {
+      margin-top: 20px;
+      font-size: 12px;
+      color: #94a3b8;
     }
   </style>
 </head>
 
 <body>
   <div class="container">
-    <h1>👁️ AK Eye Disease Detection</h1>
+    <h1>👁️ AK Eye Detection</h1>
 
     <div class="card">
       <input type="file" id="imageInput" accept="image/*" />
-      <button onclick="sendToMATLAB()">Detect Disease</button>
+      <button id="predictBtn" onclick="sendToMATLAB()">Detect Disease</button>
 
-      <div id="result">Result will appear here...</div>
-      <div class="status" id="status"></div>
+      <div id="result">Waiting for image...</div>
+      <div class="status" id="status">Ready</div>
 
-      <div class="small">
-        ✅ Connected to AI Server securely via ngrok.
+      <div class="footer-note">
+        Connected to Secure Python-MATLAB Bridge via ngrok
       </div>
     </div>
   </div>
 
   <script>
-    // ✅ YOUR LIVE NGROK LINK IS HERE:
+    // ✅ YOUR LIVE NGROK LINK (Update this if you restart ngrok!)
     const MATLAB_SERVER_URL = "https://racemose-angelic-overearnestly.ngrok-free.dev/predict";
 
-    async function fileToBase64(file){
+    async function fileToBase64(file) {
       return new Promise((resolve, reject) => {
         const reader = new FileReader();
-        reader.onload = () => resolve(reader.result); // data:image/...;base64,xxxx
+        reader.onload = () => resolve(reader.result);
         reader.onerror = reject;
         reader.readAsDataURL(file);
       });
     }
 
-    async function sendToMATLAB(){
+    async function sendToMATLAB() {
       const statusEl = document.getElementById("status");
       const resultEl = document.getElementById("result");
-      const file = document.getElementById("imageInput").files[0];
+      const fileInput = document.getElementById("imageInput");
+      const btn = document.getElementById("predictBtn");
 
-      if(!file){
-        alert("Upload Image First");
+      if (!fileInput.files[0]) {
+        alert("Please select an eye image first!");
         return;
       }
 
-      try{
-        statusEl.textContent = "Uploading to AI server...";
-        resultEl.textContent = "Processing...";
+      try {
+        // UI Updates
+        btn.disabled = true;
+        btn.style.background = "#4b5563";
+        statusEl.textContent = "Sending to AI Server (Running MATLAB)...";
+        resultEl.textContent = "Processing image...";
 
-        // Convert image file to base64 so we can send to MATLAB
-        const dataUrl = await fileToBase64(file);
+        const dataUrl = await fileToBase64(fileInput.files[0]);
 
+        // ✅ The Fetch Call with ngrok-skip-browser-warning fix
         const response = await fetch(MATLAB_SERVER_URL, {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { 
+            "Content-Type": "application/json",
+            "ngrok-skip-browser-warning": "69420" 
+          },
           body: JSON.stringify({ image: dataUrl })
         });
 
-        if(!response.ok){
-          const t = await response.text();
-          throw new Error("Server error: " + response.status + " " + t);
+        if (!response.ok) {
+          throw new Error(`Server Error: ${response.status}`);
         }
 
         const data = await response.json();
-        statusEl.textContent = "Done ✅";
-        resultEl.textContent = "Result: " + (data.result ?? "No result returned");
+        
+        statusEl.textContent = "Analysis Complete ✅";
+        resultEl.textContent = "Result: " + (data.result || "No data");
+        resultEl.style.color = "#4ade80";
 
-      }catch(err){
-        statusEl.textContent = "Failed ❌";
-        resultEl.textContent = "Error: " + err.message;
+      } catch (err) {
+        console.error(err);
+        statusEl.textContent = "Error occurred ❌";
+        resultEl.textContent = "Connection Failed. Check if Python is running!";
+        resultEl.style.color = "#f87171";
+      } finally {
+        btn.disabled = false;
+        btn.style.background = "#22c55e";
       }
     }
   </script>
