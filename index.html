@@ -1,170 +1,247 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AK Eye Disease Detection</title>
-
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: #0f172a;
-      color: #fff;
-      text-align: center;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-    .container {
-      padding: 20px;
-    }
-    h1 {
-      font-size: 36px;
-      margin-bottom: 20px;
-      color: #38bdf8;
-    }
-    .card {
-      width: min(480px, 90vw);
-      background: #1e293b;
-      border: 1px solid #334155;
-      border-radius: 16px;
-      padding: 30px;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    }
-    input[type=file] {
-      width: 100%;
-      padding: 12px;
-      border-radius: 8px;
-      border: 1px dashed #64748b;
-      background: #0f172a;
-      color: #cbd5e1;
-      margin-bottom: 20px;
-      cursor: pointer;
-    }
-    button {
-      width: 100%;
-      padding: 15px;
-      background: #22c55e;
-      border: none;
-      border-radius: 10px;
-      color: #fff;
-      font-size: 18px;
-      cursor: pointer;
-      font-weight: bold;
-      transition: transform 0.2s, background 0.2s;
-    }
-    button:hover {
-      background: #16a34a;
-      transform: translateY(-2px);
-    }
-    button:active {
-      transform: translateY(0);
-    }
-    #result {
-      margin-top: 25px;
-      font-size: 22px;
-      font-weight: bold;
-      color: #f0f9ff;
-      padding: 15px;
-      border-radius: 8px;
-      background: rgba(56, 189, 248, 0.1);
-    }
-    .status {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #fbbf24;
-    }
-    .footer-note {
-      margin-top: 20px;
-      font-size: 12px;
-      color: #94a3b8;
-    }
-  </style>
-</head>
-
-<body>
-  <div class="container">
-    <h1>👁️ AK Eye Detection</h1>
-
-    <div class="card">
-      <input type="file" id="imageInput" accept="image/*" />
-      <button id="predictBtn" onclick="sendToMATLAB()">Detect Disease</button>
-
-      <div id="result">Waiting for image...</div>
-      <div class="status" id="status">Ready</div>
-
-      <div class="footer-note">
-        Connected to Secure Python-MATLAB Bridge via ngrok
-      </div>
-    </div>
-  </div>
-
-  <script>
-    // ✅ YOUR LIVE NGROK LINK (Update this if you restart ngrok!)
-   const MATLAB_SERVER_URL = "https://racemose-angelic-overearnestly.ngrok-free.dev/predict";
-
-    async function fileToBase64(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    async function sendToMATLAB() {
-      const statusEl = document.getElementById("status");
-      const resultEl = document.getElementById("result");
-      const fileInput = document.getElementById("imageInput");
-      const btn = document.getElementById("predictBtn");
-
-      if (!fileInput.files[0]) {
-        alert("Please select an eye image first!");
-        return;
-      }
-
-      try {
-        // UI Updates
-        btn.disabled = true;
-        btn.style.background = "#4b5563";
-        statusEl.textContent = "Sending to AI Server (Running MATLAB)...";
-        resultEl.textContent = "Processing image...";
-
-        const dataUrl = await fileToBase64(fileInput.files[0]);
-
-        // ✅ The Fetch Call with ngrok-skip-browser-warning fix
-        const response = await fetch(MATLAB_SERVER_URL, {
-          method: "POST",
-          headers: { 
-            "Content-Type": "application/json",
-            "ngrok-skip-browser-warning": "69420" 
-          },
-          body: JSON.stringify({ image: dataUrl })
-        });
-
-        if (!response.ok) {
-          throw new Error(`Server Error: ${response.status}`);
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Eye Diagnostic System</title>
+    <style>
+        /* CSS STYLING: Modern Clinical Theme */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+        header {
+            background: linear-gradient(135deg, #005c97, #363795);
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        h1 { margin: 0; font-size: 28px; letter-spacing: 1px; }
+        p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.8; }
+        
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        const data = await response.json();
+        /* Upload Section */
+        .upload-section {
+            border: 2px dashed #005c97;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            background-color: #f9fbfc;
+        }
+        .upload-btn, .predict-btn {
+            background-color: #005c97;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 15px;
+            transition: 0.3s;
+            font-weight: bold;
+        }
+        .upload-btn:hover { background-color: #363795; }
         
-        statusEl.textContent = "Analysis Complete ✅";
-        resultEl.textContent = "Result: " + (data.result || "No data");
-        resultEl.style.color = "#4ade80";
+        .predict-btn {
+            background-color: #22c55e;
+            width: 100%;
+            display: none; /* Hidden until image is uploaded */
+            font-size: 18px;
+            padding: 15px;
+        }
+        .predict-btn:hover { background-color: #16a34a; }
+        .predict-btn:disabled { background-color: #94a3b8; cursor: not-allowed; }
 
-      } catch (err) {
-        console.error(err);
-        statusEl.textContent = "Error occurred ❌";
-        resultEl.textContent = "Connection Failed. Check if Python is running!";
-        resultEl.style.color = "#f87171";
-      } finally {
-        btn.disabled = false;
-        btn.style.background = "#22c55e";
-      }
-    }
-  </script>
+        input[type="file"] { display: none; }
+        
+        #imagePreview {
+            max-width: 300px;
+            border-radius: 8px;
+            margin: 20px auto 0 auto;
+            display: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        /* Scanning Animation */
+        #loader {
+            display: none;
+            text-align: center;
+            padding: 30px 0;
+        }
+        .spinner {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #005c97;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 15px auto;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Real Results Box */
+        .results-section {
+            display: none;
+            background: #eef2f5;
+            padding: 25px;
+            border-radius: 8px;
+            border-left: 5px solid #005c97;
+        }
+        
+        /* Formats the text to look like a medical document */
+        #medicalReport {
+            font-family: monospace;
+            font-size: 16px;
+            line-height: 1.6;
+            white-space: pre-wrap; /* Keeps the newlines from MATLAB */
+            color: #1e293b;
+        }
+        
+        .footer-note {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Clinical Eye Diagnostic Portal</h1>
+        <p>Powered by Advanced Deep Learning & MATLAB</p>
+    </header>
+
+    <div class="container">
+        <div class="upload-section">
+            <h3 style="margin-top:0;">Patient Scan Upload</h3>
+            <p>Select a high-resolution retinal or external eye scan.</p>
+            <input type="file" id="imageInput" accept="image/*" onchange="previewImage(event)">
+            <button class="upload-btn" onclick="document.getElementById('imageInput').click()">Select Image</button>
+            <img id="imagePreview" alt="Patient Eye Scan">
+        </div>
+
+        <button id="predictBtn" class="predict-btn" onclick="sendToMATLAB()">Initialize AI Scan</button>
+
+        <div id="loader">
+            <div class="spinner"></div>
+            <h3 id="statusText">Connecting to MATLAB Server...</h3>
+        </div>
+
+        <div class="results-section" id="resultsBox">
+            <h2 style="margin-top:0; color: #005c97;">Laboratory Results</h2>
+            <div id="medicalReport"></div>
+        </div>
+        
+        <div class="footer-note">
+            Securely connected to Python-MATLAB Bridge via Ngrok
+        </div>
+    </div>
+
+    <script>
+        // ✅ YOUR LIVE NGROK LINK 
+        const MATLAB_SERVER_URL = "https://racemose-angelic-overearnestly.ngrok-free.dev/predict";
+
+        // Show image preview when selected
+        function previewImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('imagePreview');
+                    img.src = e.target.result;
+                    img.style.display = 'block';
+                    
+                    // Show the predict button
+                    document.getElementById('predictBtn').style.display = 'block';
+                    
+                    // Hide old results if doing a second scan
+                    document.getElementById('resultsBox').style.display = 'none';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // Convert file for JSON transfer
+        async function fileToBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // Send to real backend
+        async function sendToMATLAB() {
+            const statusText = document.getElementById("statusText");
+            const loaderBox = document.getElementById("loader");
+            const resultBox = document.getElementById("resultsBox");
+            const reportText = document.getElementById("medicalReport");
+            const fileInput = document.getElementById("imageInput");
+            const btn = document.getElementById("predictBtn");
+
+            if (!fileInput.files[0]) return;
+
+            try {
+                // UI Updates for loading
+                btn.disabled = true;
+                btn.innerText = "Processing...";
+                loaderBox.style.display = "block";
+                resultBox.style.display = "none";
+                statusText.textContent = "Analyzing structure via Neural Network...";
+
+                const dataUrl = await fileToBase64(fileInput.files[0]);
+
+                // The Fetch Call to Python
+                const response = await fetch(MATLAB_SERVER_URL, {
+                    method: "POST",
+                    headers: { 
+                        "Content-Type": "application/json",
+                        "ngrok-skip-browser-warning": "69420" 
+                    },
+                    body: JSON.stringify({ image: dataUrl })
+                });
+
+                if (!response.ok) throw new Error(`Server Error: ${response.status}`);
+
+                const data = await response.json();
+                
+                // Format the MATLAB string: Turn *text* into <b>text</b>
+                let formattedText = data.result || "No data received.";
+                formattedText = formattedText.replace(/\*(.*?)\*/g, "<strong>$1</strong>");
+                
+                reportText.innerHTML = formattedText;
+                
+                // Show results
+                loaderBox.style.display = "none";
+                resultBox.style.display = "block";
+
+            } catch (err) {
+                console.error(err);
+                loaderBox.style.display = "none";
+                resultBox.style.display = "block";
+                reportText.innerHTML = `<span style="color:red;"><strong>Connection Error:</strong> Could not reach the MATLAB server. Ensure your Python script and Ngrok are currently running on your laptop.</span>`;
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Initialize AI Scan";
+            }
+        }
+    </script>
 </body>
 </html>
