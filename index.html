@@ -5,67 +5,73 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Eye Diagnostic System</title>
     <style>
-        /* CSS STYLING: Modern Clinical Theme */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f4f7f6;
+            background-color: #0f172a; /* Sleek dark background */
             margin: 0;
             padding: 0;
-            color: #333;
+            color: #fff;
         }
         header {
-            background: linear-gradient(135deg, #005c97, #363795);
+            background: linear-gradient(135deg, #0f172a, #1e293b);
             color: white;
             padding: 20px 0;
             text-align: center;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border-bottom: 1px solid #334155;
         }
-        h1 { margin: 0; font-size: 28px; letter-spacing: 1px; }
-        p { margin: 5px 0 0 0; font-size: 14px; opacity: 0.8; }
+        h1 { margin: 0; font-size: 28px; color: #38bdf8; }
+        p { margin: 5px 0 0 0; font-size: 14px; color: #cbd5e1; }
         
         .container {
             max-width: 900px;
             margin: 40px auto;
-            padding: 20px;
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            padding: 30px;
+            background: #1e293b;
+            border-radius: 16px;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
             display: flex;
             flex-direction: column;
             gap: 20px;
+            border: 1px solid #334155;
         }
 
-        /* Upload Section */
         .upload-section {
-            border: 2px dashed #005c97;
+            border: 2px dashed #64748b;
             border-radius: 10px;
             padding: 40px;
             text-align: center;
-            background-color: #f9fbfc;
+            background-color: #0f172a;
         }
-        .upload-btn, .predict-btn {
-            background-color: #005c97;
-            color: white;
+        
+        .upload-btn {
+            background-color: #38bdf8;
+            color: #0f172a;
             padding: 12px 25px;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             font-size: 16px;
             cursor: pointer;
             margin-top: 15px;
-            transition: 0.3s;
             font-weight: bold;
+            transition: 0.3s;
         }
-        .upload-btn:hover { background-color: #363795; }
+        .upload-btn:hover { background-color: #0ea5e9; }
         
         .predict-btn {
             background-color: #22c55e;
+            color: white;
             width: 100%;
-            display: none; /* Hidden until image is uploaded */
+            display: none; 
             font-size: 18px;
             padding: 15px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
         }
         .predict-btn:hover { background-color: #16a34a; }
-        .predict-btn:disabled { background-color: #94a3b8; cursor: not-allowed; }
+        .predict-btn:disabled { background-color: #4b5563; cursor: not-allowed; }
 
         input[type="file"] { display: none; }
         
@@ -74,18 +80,18 @@
             border-radius: 8px;
             margin: 20px auto 0 auto;
             display: none;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
         }
 
-        /* Scanning Animation */
         #loader {
             display: none;
             text-align: center;
             padding: 30px 0;
+            color: #38bdf8;
         }
         .spinner {
-            border: 5px solid #f3f3f3;
-            border-top: 5px solid #005c97;
+            border: 5px solid #334155;
+            border-top: 5px solid #38bdf8;
             border-radius: 50%;
             width: 40px;
             height: 40px;
@@ -94,43 +100,41 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* Real Results Box */
         .results-section {
             display: none;
-            background: #eef2f5;
+            background: #0f172a;
             padding: 25px;
             border-radius: 8px;
-            border-left: 5px solid #005c97;
+            border-left: 5px solid #38bdf8;
         }
         
-        /* Formats the text to look like a medical document */
+        /* THIS FIXES THE SQUISHED TEXT */
         #medicalReport {
-            font-family: monospace;
-            font-size: 16px;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 18px;
             line-height: 1.6;
-            white-space: pre-wrap; /* Keeps the newlines from MATLAB */
-            color: #1e293b;
+            color: #f8fafc;
         }
         
         .footer-note {
             text-align: center;
             margin-top: 20px;
             font-size: 12px;
-            color: #94a3b8;
+            color: #64748b;
         }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Clinical Eye Diagnostic Portal</h1>
+        <h1>👁️ Clinical Eye Diagnostic Portal</h1>
         <p>Powered by Advanced Deep Learning & MATLAB</p>
     </header>
 
     <div class="container">
         <div class="upload-section">
-            <h3 style="margin-top:0;">Patient Scan Upload</h3>
-            <p>Select a high-resolution retinal or external eye scan.</p>
+            <h3 style="margin-top:0; color: #f8fafc;">Patient Scan Upload</h3>
+            <p style="color: #94a3b8;">Select a high-resolution retinal or external eye scan.</p>
             <input type="file" id="imageInput" accept="image/*" onchange="previewImage(event)">
             <button class="upload-btn" onclick="document.getElementById('imageInput').click()">Select Image</button>
             <img id="imagePreview" alt="Patient Eye Scan">
@@ -144,7 +148,7 @@
         </div>
 
         <div class="results-section" id="resultsBox">
-            <h2 style="margin-top:0; color: #005c97;">Laboratory Results</h2>
+            <h2 style="margin-top:0; color: #38bdf8;">Laboratory Results</h2>
             <div id="medicalReport"></div>
         </div>
         
@@ -154,12 +158,9 @@
     </div>
 
     <script>
-        // =========================================================================
-        // ✅ IF NGROK RESTARTS, CHANGE THE LINK BELOW. ALWAYS KEEP "/predict" AT THE END!
-        // =========================================================================
-        const MATLAB_SERVER_URL = "https://racemose-angelic-overearnestly.ngrok-free.dev/predict"; // <--- CHANGE THIS LINK IF NEEDED
+        // ✅ YOUR LIVE NGROK LINK (Keep "/predict" at the end!)
+        const MATLAB_SERVER_URL = "https://racemose-angelic-overearnestly.ngrok-free.dev/predict"; 
         
-        // Show image preview when selected
         function previewImage(event) {
             const file = event.target.files[0];
             if (file) {
@@ -169,17 +170,13 @@
                     img.src = e.target.result;
                     img.style.display = 'block';
                     
-                    // Show the predict button
                     document.getElementById('predictBtn').style.display = 'block';
-                    
-                    // Hide old results if doing a second scan
                     document.getElementById('resultsBox').style.display = 'none';
                 }
                 reader.readAsDataURL(file);
             }
         }
 
-        // Convert file for JSON transfer
         async function fileToBase64(file) {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -189,7 +186,6 @@
             });
         }
 
-        // Send to real backend
         async function sendToMATLAB() {
             const statusText = document.getElementById("statusText");
             const loaderBox = document.getElementById("loader");
@@ -201,7 +197,6 @@
             if (!fileInput.files[0]) return;
 
             try {
-                // UI Updates for loading
                 btn.disabled = true;
                 btn.innerText = "Processing...";
                 loaderBox.style.display = "block";
@@ -210,7 +205,6 @@
 
                 const dataUrl = await fileToBase64(fileInput.files[0]);
 
-                // The Fetch Call to Python
                 const response = await fetch(MATLAB_SERVER_URL, {
                     method: "POST",
                     headers: { 
@@ -224,13 +218,16 @@
 
                 const data = await response.json();
                 
-                // Format the MATLAB string: Turn *text* into <b>text</b>
-                let formattedText = data.result || "No data received.";
-                formattedText = formattedText.replace(/\*(.*?)\*/g, "<strong>$1</strong>");
+                let rawText = data.result || "No data received.";
                 
-                reportText.innerHTML = formattedText;
+                // --- THE MAGIC FIX IS HERE ---
+                // 1. Convert MATLAB invisible newlines to HTML <br> tags
+                rawText = rawText.replace(/\n/g, "<br>");
+                // 2. Convert *bold* text to HTML strong tags
+                rawText = rawText.replace(/\*(.*?)\*/g, "<strong>$1</strong>");
                 
-                // Show results
+                reportText.innerHTML = rawText;
+                
                 loaderBox.style.display = "none";
                 resultBox.style.display = "block";
 
@@ -238,7 +235,7 @@
                 console.error(err);
                 loaderBox.style.display = "none";
                 resultBox.style.display = "block";
-                reportText.innerHTML = `<span style="color:red;"><strong>Connection Error:</strong> Could not reach the MATLAB server. Ensure your Python script and Ngrok are currently running on your laptop.</span>`;
+                reportText.innerHTML = `<span style="color:#ef4444;"><strong>Connection Error:</strong> Could not reach the MATLAB server. Ensure your Python script and Ngrok are running.</span>`;
             } finally {
                 btn.disabled = false;
                 btn.innerText = "Initialize AI Scan";
